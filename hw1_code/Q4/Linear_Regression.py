@@ -70,10 +70,30 @@ def gradient_descent(X, y, lr_set, N_iteration):
       with respect to the i-th iteration
     - You can print the final objective value within this function to show the performance of the best step size
     """
-   	################################
-	##     Write your code here   ##
-	################################
-
+    # create graph
+    plt.figure(figsize=(10,6))
+    
+    for lr in lr_set:
+        w_0 = np.zeros((d,1)) # initialize zero vector for each learning rate
+        square_error_history = [] # reset history for each iteration
+        for _ in range(N_iteration):
+            prediction = X @ w_0 # how aligned is our guess with the weights
+            residual = prediction - y
+            #gradient calculation and update
+            gradient = (2 / len(X)) * (X.T @ residual)
+            w_0 = w_0 - lr * gradient
+            
+            #calculate square error for graphing purposes
+            square_error = np.sum(residual**2)     
+            square_error_history.append(square_error)
+        plt.plot(range(1, N_iteration+1), square_error_history, label=f'lr={lr}', marker = 'X')
+    
+    plt.xlabel("Iteration")
+    plt.ylabel("Square Loss")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.show()
+ 
 
 def stochastic_gradient_descent(X,y,lr_set,N_iteration):
 	"""
@@ -96,20 +116,20 @@ def stochastic_gradient_descent(X,y,lr_set,N_iteration):
 
 def main():
 	### Problem 4.1 ###
-	w_LS, loss_LS_train = closed_form(X,y)
-	w_0 = np.zeros((d,1)) # zero vector as the initial weight
-	loss_0_train = square_loss(w_0,X,y)
-	loss_LS_test = square_loss(w_LS,X_test, y_test)
+	# w_LS, loss_LS_train = closed_form(X,y)
+	# w_0 = np.zeros((d,1)) # zero vector as the initial weight
+	# loss_0_train = square_loss(w_0,X,y)
+	# loss_LS_test = square_loss(w_LS,X_test, y_test)
 
-	print("F(w_LS)=", loss_LS_train, " on training data")
-	print("F(w_0)=", loss_0_train, " on training data")
-	print("F(w_LS)=", loss_LS_test, " on testing data")
+	# print("F(w_LS)=", loss_LS_train, " on training data")
+	# print("F(w_0)=", loss_0_train, " on training data")
+	# print("F(w_LS)=", loss_LS_test, " on testing data")
 
 
 	### Problem 4.2 (Gradient Descent) ###
 	### You can plot more options of lr_set if necessary
 	lr_set = [0.00005, 0.0005, 0.0007]
-	w_0 = np.zeros((n,1))
+	# w_0 = np.zeros((n,1))
 	N_iter = 20
 	gradient_descent(X,y,lr_set,N_iter)
 
