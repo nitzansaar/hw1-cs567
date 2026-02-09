@@ -118,11 +118,29 @@ def predict_labels(k, ytrain, dists):
 	- ypred: A numpy array of shape (num_test,) containing predicted labels for the
 	  test data, where y[i] is the predicted label for the test point X[i].
 	"""
-	#####################################################
-	#				 YOUR CODE HERE					    #
-	#####################################################
+	num_test, num_train = dists.shape[0], dists.shape[1]
+	ypred = np.zeros(num_test)
+	for i in range(num_test):
+		sorted_dists = np.argsort(dists[i, :])
+		k_nearest_dists = sorted_dists[:k]
+		k_nearest_labels = ytrain[k_nearest_dists]
+		# get label with highest count
+		ypred[i] = return_highest_count(k_nearest_labels)
+		print(f"prediction {ypred[i]}")
+
 	return ypred
 
+def return_highest_count(nearest_labels):
+    zeros, ones = 0, 0
+    for i in range(len(nearest_labels)):
+        if nearest_labels[i] == 1:
+            ones += 1
+        else:
+            zeros += 1
+    if ones > zeros:
+        return 1
+    else: 
+        return 0
 
 def compute_error_rate(y, ypred):
 	"""
