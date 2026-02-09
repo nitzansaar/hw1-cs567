@@ -70,6 +70,7 @@ def gradient_descent(X, y, lr_set, N_iteration):
       with respect to the i-th iteration
     - You can print the final objective value within this function to show the performance of the best step size
     """
+    print("\nGRADIENT DESCENT \n")
     # create graph
     plt.figure(figsize=(10,6))
     
@@ -86,16 +87,17 @@ def gradient_descent(X, y, lr_set, N_iteration):
             #calculate square error for graphing purposes
             square_error = np.sum(residual**2)     
             square_error_history.append(square_error)
-        plt.plot(range(1, N_iteration+1), square_error_history, label=f'lr={lr}', marker = 'X')
+        print(f'lr: {lr} final loss: {square_error}')
+        plt.plot(range(1, N_iteration+1), square_error_history, label=f'lr={lr}')
     
     plt.xlabel("Iteration")
     plt.ylabel("Square Loss")
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.show()
- 
+    plt.savefig('gradient_descent_plot.png', dpi=300, bbox_inches='tight')
+    plt.close()
 
-def stochastic_gradient_descent(X,y,lr_set,N_iteration):
+def stochastic_gradient_descent(X, y, lr_set, N_iteration):
 	"""
 	Implement gradient descent on the square-error given dataset (X,y) and for each learning rate in lr_set
 	Inputs:
@@ -108,10 +110,33 @@ def stochastic_gradient_descent(X,y,lr_set,N_iteration):
 	- each curve contains 1000 data points, in which the i-th data point represents the total squared-error with respect to the i-th iteration
 	- You can print the final objective value within this function to show the performance of best step size
 	"""
+	print("\n STOCHASTIC GRADIENT DESCENT \n")
+	# create graph
+	plt.figure(figsize=(10,6))
 	np.random.seed(1) # Use this fixed random_seed in sampling
-	################################
-	##     Write your code here   ##
-	################################
+	for lr in lr_set:
+		w_0 = np.zeros((d,1))
+		square_error_history = []
+		for _ in range(N_iteration):
+			idx = np.random.randint(0, len(X))
+			x_i, y_i  = X[idx:idx+1], y[idx:idx+1]
+			prediction = x_i @ w_0 # how aligned is our guess with the weights
+			residual = prediction - y_i
+			#gradient calculation and update
+			gradient = 2 * (x_i.T @ residual)
+			w_0 = w_0 - lr * gradient
+			#calculate square error for graphing purposes
+			residual = x_i @ w_0 - y_i
+			square_error = np.sum(residual**2)     
+			square_error_history.append(square_error)
+		print(f'lr: {lr} final loss: {square_error}')
+		plt.plot(range(1, N_iteration+1), square_error_history, label=f'lr={lr}')
+		plt.xlabel("Iteration")
+		plt.ylabel("Square Loss")
+		plt.legend()
+		plt.grid(True, alpha=0.3)
+		plt.savefig(f'sgd_plot_lr{lr}.png', dpi=300, bbox_inches='tight')
+		plt.close()
 
 
 def main():
@@ -128,7 +153,7 @@ def main():
 
 	### Problem 4.2 (Gradient Descent) ###
 	### You can plot more options of lr_set if necessary
-	lr_set = [0.00005, 0.0005, 0.0007]
+	lr_set = [0.00005, 0.0005, 0.0007, 0.005, 0.007, 0.05, 0.07, 0.5]
 	# w_0 = np.zeros((n,1))
 	N_iter = 20
 	gradient_descent(X,y,lr_set,N_iter)
