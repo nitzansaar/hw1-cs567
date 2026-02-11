@@ -175,8 +175,8 @@ def compute_error_rate(y, ypred):
 	for i in range(n):
 		if y[i] != ypred[i]:
 			err += 1
-	print(f'incorrect: {err}')
-	print(f'total: {n}')
+	# print(f'incorrect: {err}')
+	# print(f'total: {n}')
 	return err / n
 		
 
@@ -201,6 +201,21 @@ def find_best_k(K, ytrain, dists, yval):
 	#####################################################
 	#				 YOUR CODE HERE					    #
 	#####################################################
+	validation_error = []
+	best_k = K[0] if len(K) > 1 else -1
+	best_err = float('inf')
+	for k in K:
+		ypred = predict_labels(k, ytrain, dists)
+		err = compute_error_rate(yval, ypred)
+  
+		if err < best_err:
+			best_err = err
+			best_k = k
+
+		print(f'k = {k} | error = {err}')
+		validation_error.append(err)
+  
+
 	return best_k, validation_error, best_err
 
 
