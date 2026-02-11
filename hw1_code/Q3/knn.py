@@ -1,6 +1,7 @@
 import numpy as np
 import json
 import collections
+import matplotlib.pyplot as plt
 
 
 def data_processing(data):
@@ -181,42 +182,43 @@ def compute_error_rate(y, ypred):
 		
 
 
-def find_best_k(K, ytrain, dists, yval):
-	"""
-	Find best k according to validation error rate.
-	Inputs:
-	- K: A list of ks.
-	- ytrain: A numpy array of shape (num_train,) where ytrain[i] is the label
-	  of the ith training point.
-	- dists: A numpy array of shape (num_test, num_train) where dists[i, j]
-	  is the distance between the ith test point and the jth training
-	  point.
-	- yval: A numpy array with of shape (num_val,) where y[i] is the true label
-	  of the ith validation point.
-	Returns:
-	- best_k: The k with the lowest error rate.
-	- validation_error: A list of error rate of different ks in K.
-	- best_err: The lowest error rate we get from all ks in K.
-	"""
-	#####################################################
-	#				 YOUR CODE HERE					    #
-	#####################################################
-	validation_error = []
-	best_k = K[0] if len(K) > 1 else -1
-	best_err = float('inf')
-	for k in K:
-		ypred = predict_labels(k, ytrain, dists)
-		err = compute_error_rate(yval, ypred)
-  
-		if err < best_err:
-			best_err = err
-			best_k = k
+def find_best_k(K, ytrain, dists_train, dists_val, yval):
+    train_errors = []
+    val_errors = []
+    best_k = None
+    best_err = float('inf')
 
-		print(f'k = {k} | error = {err}')
-		validation_error.append(err)
-  
+    for k in K:
+        # Calculate Training Error
+        ypred_train = predict_labels(k, ytrain, dists_train)
+        err_train = compute_error_rate(ytrain, ypred_train)
+        train_errors.append(err_train)
 
-	return best_k, validation_error, best_err
+        # Calculate Validation Error
+        ypred_val = predict_labels(k, ytrain, dists_val)
+        err_val = compute_error_rate(yval, ypred_val)
+        val_errors.append(err_val)
+        
+        if err_val < best_err:
+            best_err = err_val
+            best_k = k
+        
+        print(f'k = {k} | Train Err = {err_train:.4f} | Val Err = {err_val:.4f}')
+
+    # Plot both curves
+    plt.figure(figsize=(10, 6))
+    plt.plot(K, train_errors, label='Training Error', marker='x', color='gray')
+    plt.plot(K, val_errors, label='Validation Error', marker='o', color='royalblue')
+    
+    plt.title('k-NN: Training vs Validation Error Curves')
+    plt.xlabel('k (Number of Neighbors)')
+    plt.ylabel('Error Rate')
+    plt.xticks(K)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.savefig("best_k.png")
+    
+    return best_k, val_errors, best_err
 
 
 def main():
@@ -284,19 +286,21 @@ def main():
 	# Compute distance matrix
 	Xtrain, ytrain, Xval, yval, Xtest, ytest = data_processing(data)
 
-	#======performance of different k in training set=====
+	#======performance of different k in training and validation set=====
 	K = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18]
-	#####################################################
-	#				 YOUR CODE HERE					    #
-	#####################################################
 	
-	#==========select the best k by using validation set==============
-	dists = compute_l2_distances(Xtrain, Xval)
-	best_k, validation_error, best_err = find_best_k(K, ytrain, dists, yval)
-
+	# distance for training error (training vs itself)
+	dists_train = compute_l2_distances(Xtrain, Xtrain)
+	
+	#distance for validation error (training vs validation)
+	dists_val = compute_l2_distances(Xtrain, Xval)
+	
+	#pass in both
+	best_k, validation_error, best_err = find_best_k(K, ytrain, dists_train, dists_val, yval)
+	
 	#===============test the performance with your best k=============
-	dists = compute_l2_distances(Xtrain, Xtest)
-	ypred = predict_labels(best_k, ytrain, dists)
+	dists_test = compute_l2_distances(Xtrain, Xtest)
+	ypred = predict_labels(best_k, ytrain, dists_test)
 	test_err = compute_error_rate(ytest, ypred)
 	print("In Problem Set 1.4, we use the best k = ", best_k, "with the best validation error rate", best_err)
 	print("Using the best k, the final test error rate is", test_err)
