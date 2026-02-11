@@ -124,9 +124,8 @@ def predict_labels(k, ytrain, dists):
 		sorted_dists = np.argsort(dists[i, :])
 		k_nearest_dists = sorted_dists[:k]
 		k_nearest_labels = ytrain[k_nearest_dists]
-		# get label with highest count
 		ypred[i] = return_highest_count(k_nearest_labels)
-		print(f"prediction {ypred[i]}")
+		# print(f"prediction {ypred[i]}")
 
 	return ypred
 
@@ -140,7 +139,7 @@ def return_highest_count(nearest_labels):
     if ones > zeros:
         return 1
     else: 
-        return 0
+        return 0 # return 0 on tie as well
 
 def compute_error_rate(y, ypred):
 	"""
@@ -153,10 +152,20 @@ def compute_error_rate(y, ypred):
 	Returns:
 	- err: The error rate of prediction (scalar).
 	"""
-	#####################################################
-	#				 YOUR CODE HERE					    #
-	#####################################################
-	return err
+	# first determine how many classifications are correct
+	# go through the predictions and check if they match the ground truth
+		# if so increment count
+	
+	# determine error rate by dividing incorrect classifications with total classifications
+	n = min(len(y), len(ypred))
+	err = 0
+	for i in range(n):
+		if y[i] != ypred[i]:
+			err += 1
+	print(f'incorrect: {err}')
+	print(f'total: {n}')
+	return err / n
+		
 
 
 def find_best_k(K, ytrain, dists, yval):
