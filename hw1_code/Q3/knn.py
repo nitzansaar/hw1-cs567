@@ -45,17 +45,19 @@ def data_processing_with_transformation(data, do_minmax_scaling=True, do_normali
 
 	# Min-Max scaling
 	if do_minmax_scaling:
-		pass
-		#####################################################
-		#				 YOUR CODE HERE					    #
-		#####################################################
+		min_val = np.min(Xtrain)
+		max_val = np.max(Xtrain)
+		denominator = (max_val - min_val) + 1e-8
+
+		Xtrain = (Xtrain - min_val) / denominator
+		Xval = (Xval - min_val) / denominator
+		Xtest = (Xtest - min_val) / denominator
+
 
 	# Normalization
 	def normalization(x):
-		#####################################################
-		#				 YOUR CODE HERE					    #
-		#####################################################
-		return
+		norm = np.linalg.norm(x) + 1e-8
+		return x / norm
 	
 	if do_normalization:
 		Xtrain = normalization(Xtrain)
@@ -101,7 +103,18 @@ def compute_cosine_distances(Xtrain, X):
 	  is the Cosine distance between the ith test point and the jth training
 	  point.
 	"""
-	return
+	num_train = Xtrain.shape[0]
+	num_test = X.shape[0]
+	dists = np.zeros((num_test, num_train))
+	for i in range(num_test):
+		norm_x = np.linalg.norm(X[i]) + 1e-8
+		for j in range(num_train):
+			norm_xtrain = np.linalg.norm(Xtrain[j])
+			if norm_xtrain == 0 or norm_x == 0:
+				dists[i][j] = 1
+			else:
+				dists[i][j] = 1 - ((X[i] @ Xtrain[j]) / (norm_x * norm_xtrain))
+	return dists
 
 
 def predict_labels(k, ytrain, dists):
